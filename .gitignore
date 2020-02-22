@@ -3,3 +3,4 @@
 .tox/
 virtualenvironment/
 utils/
+test/
