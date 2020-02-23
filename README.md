@@ -87,6 +87,7 @@ Included in the `citrix.adc` collection
 * citrix\_adc\_lb\_vserver - Manage load balancing vserver configuration
 * citrix\_adc\_nitro\_request - Issue Nitro API requests to a Citrix ADC instance
 * citrix\_adc\_nitro\_resource - Create, update, delete resources on Citrix ADC
+* citrix\_adc\_rewrite\_action - Manage rewrite actions
 * citrix\_adc\_save\_config - Save Citrix ADC configuration
 * citrix\_adc\_server - Manage server configuration
 * citrix\_adc\_service - Manage service configuration in Citrix ADC
