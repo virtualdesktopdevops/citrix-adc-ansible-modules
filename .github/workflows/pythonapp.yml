@@ -27,7 +27,7 @@ jobs:
         pylint -E ansible-modules/citrix_adm_*.py
     - name: Integration testing with Citrix ADC CPX 13
       run: |
-        docker login -u ${{ secrets.dockerhub_login }} -p ${{ secrets.dockerhub_password }}
+        docker login -u ${{ secrets.dockerhub_login }} --password-stdin ${{ secrets.dockerhub_password }}
         docker-compose -f docker-compose.ci.yml up -d
         docker ps
         ansible-playbook -i test/integration/inventory.ci.txt test/integration/netscaler_direct_calls/netscaler.yaml -e 'limit_to=citrix_adc_rewrite_action'

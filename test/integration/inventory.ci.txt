@@ -1,6 +1,6 @@
 [netscaler]
 
-netscaler_cpx_1 nsip=172.20.0.2
+netscaler_cpx_1 nsip=172.20.0.2:9080 nitro_user=nsroot nitro_pass=nsroot 
 
 [mas]
 
