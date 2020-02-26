@@ -30,6 +30,6 @@ jobs:
         echo ${{ secrets.dockerhub_password }} | docker login -u ${{ secrets.dockerhub_login }} --password-stdin
         docker-compose -f docker-compose.ci.yml up -d
         docker ps
-        echo 'Waiting for Citrix ADC CPX initialization (90s)'
-        sleep 90
+        echo 'Waiting for Citrix ADC CPX initialization (120s)'
+        sleep 120
         ansible-playbook -i test/integration/inventory.ci.txt test/integration/netscaler_direct_calls/netscaler.yaml -e 'limit_to=citrix_adc_rewrite_action'
