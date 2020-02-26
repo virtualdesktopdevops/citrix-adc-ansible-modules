@@ -1,7 +1,20 @@
 version: '3'
 
 services:
-  cpx:
+  cpx_120:
+    image: store/citrix/netscalercpx:12.0-56.20
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      EULA: 'yes'
+      PLATFORM: 'CP1000'
+    privileged: true
+    networks:
+      my-network:
+        ipv4_address: 172.20.0.2
+
+  cpx_130:
     image: store/citrix/citrixadccpx:13.0-36.29
     ports:
       - '9080:9080'
@@ -12,7 +25,7 @@ services:
     privileged: true
     networks:
       my-network:
-        ipv4_address: 172.20.0.2
+        ipv4_address: 172.20.0.3
 
 networks:
   my-network:

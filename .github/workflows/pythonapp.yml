@@ -25,7 +25,7 @@ jobs:
     - name: Test Citrix ADM ansible modules with pylint
       run: |
         pylint -E ansible-modules/citrix_adm_*.py
-    - name: Integration testing with Citrix ADC CPX 13
+    - name: Integration testing with Netscaler CPX 12.0 and Citrix ADC CPX 13
       run: |
         echo ${{ secrets.dockerhub_password }} | docker login -u ${{ secrets.dockerhub_login }} --password-stdin
         docker-compose -f docker-compose.ci.yml up -d
