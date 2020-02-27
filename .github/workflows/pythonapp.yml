@@ -30,11 +30,16 @@ jobs:
         echo ${{ secrets.dockerhub_password }} | docker login -u ${{ secrets.dockerhub_login }} --password-stdin
         docker-compose -f docker-compose.ci.yml up -d
         docker ps
-        echo 'Waiting for Citrix ADC CPX initialization (120s)'
-        sleep 120
+        echo 'Waiting for Citrix ADC CPX initialization (90s)'
+        sleep 90
         echo 'Testing NITRO API access'
-        curl -H "X-NITRO-USER:nsroot" -H "X-NITRO-PASS:nsroot" http://localhost:8080/nitro/v1/config/server
-        curl -H "X-NITRO-USER:nsroot" -H "X-NITRO-PASS:nsroot" http://localhost:9080/nitro/v1/config/server
-    - name: Integration testing with Netscaler CPX 12.0 and Citrix ADC CPX 13
+        curl -sS -H "X-NITRO-USER:nsroot" -H "X-NITRO-PASS:nsroot" http://localhost:9080/nitro/v1/config/server
+    - name: Integration testing with Citrix ADC CPX 13
       run: |
         ansible-playbook -i test/integration/inventory.ci.txt test/integration/netscaler_direct_calls/netscaler.yaml -e 'limit_to=citrix_adc_rewrite_action'
+    - name:  Testing Netscaler CPX 12 Nitro Access
+      run: |
+        docker logs citrixadcansiblemodules_cpx_120_1
+        docker inspect docker logs citrixadcansiblemodules_cpx_120_1
+        curl -sS http://localhost:8080/nitro/v1/config
+        curl -sS -H "X-NITRO-USER:nsroot" -H "X-NITRO-PASS:nsroot" http://localhost:8080/nitro/v1/config/server

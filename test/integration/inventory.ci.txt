@@ -1,5 +1,5 @@
 [netscaler]
-netscaler_cpx_120 nsip=localhost:8080 nitro_user=nsroot nitro_pass=nsroot
+#netscaler_cpx_120 nsip=localhost:8080 nitro_user=nsroot nitro_pass=nsroot
 citrix_adc_cpx_130 nsip=localhost:9080 nitro_user=nsroot nitro_pass=nsroot
 
 [mas]
