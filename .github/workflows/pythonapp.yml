@@ -40,6 +40,6 @@ jobs:
     - name:  Testing Netscaler CPX 12 Nitro Access
       run: |
         docker logs citrix-adc-ansible-modules_cpx_120_1
-        docker inspect docker logs citrix-adc-ansible-modules_cpx_120_1
+        docker inspect citrix-adc-ansible-modules_cpx_120_1
         curl -sS http://localhost:8080/nitro/v1/config
         curl -sS -H "X-NITRO-USER:nsroot" -H "X-NITRO-PASS:nsroot" http://localhost:8080/nitro/v1/config/server
