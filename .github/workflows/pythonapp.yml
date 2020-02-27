@@ -25,11 +25,16 @@ jobs:
     - name: Test Citrix ADM ansible modules with pylint
       run: |
         pylint -E ansible-modules/citrix_adm_*.py
-    - name: Integration testing with Netscaler CPX 12.0 and Citrix ADC CPX 13
+    - name: Configure integration testing environment
       run: |
         echo ${{ secrets.dockerhub_password }} | docker login -u ${{ secrets.dockerhub_login }} --password-stdin
         docker-compose -f docker-compose.ci.yml up -d
         docker ps
         echo 'Waiting for Citrix ADC CPX initialization (120s)'
         sleep 120
+        echo 'Testing NITRO API access'
+        curl -H "X-NITRO-USER:nsroot" -H "X-NITRO-PASS:nsroot" http://localhost:8080/nitro/v1/config/server
+        curl -H "X-NITRO-USER:nsroot" -H "X-NITRO-PASS:nsroot" http://localhost:9080/nitro/v1/config/server
+    - name: Integration testing with Netscaler CPX 12.0 and Citrix ADC CPX 13
+      run: |
         ansible-playbook -i test/integration/inventory.ci.txt test/integration/netscaler_direct_calls/netscaler.yaml -e 'limit_to=citrix_adc_rewrite_action'
