@@ -4,7 +4,7 @@ services:
   cpx_120:
     image: store/citrix/netscalercpx:12.0-56.20
     ports:
-      - '8080:80'
+      - '9080:80'
       - '443:443'
     environment:
       EULA: 'yes'
@@ -12,7 +12,7 @@ services:
     privileged: true
     networks:
       my-network:
-        ipv4_address: 172.20.0.2
+        ipv4_address: 172.20.0.4
 
 networks:
   my-network:
