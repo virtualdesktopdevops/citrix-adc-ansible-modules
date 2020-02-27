@@ -37,8 +37,14 @@ jobs:
     - name: Integration testing with Citrix ADC CPX 13
       run: |
         ansible-playbook -i test/integration/inventory.ci.txt test/integration/netscaler_direct_calls/netscaler.yaml -e 'limit_to=citrix_adc_rewrite_action'
+        docker-compose -f docker-compose.ci.yml down
     - name:  Testing Netscaler CPX 12 Nitro Access
+      continue-on-error: true
       run: |
+        docker-compose -f docker-compose.cpx12.yml up -d
+        docker ps
+        echo 'Waiting for Netscaler CPX initialization (90s)'
+        sleep 90
         docker logs citrix-adc-ansible-modules_cpx_120_1
         docker inspect citrix-adc-ansible-modules_cpx_120_1
         curl -sS http://localhost:8080/nitro/v1/config
