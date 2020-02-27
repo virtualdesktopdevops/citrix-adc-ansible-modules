@@ -4,7 +4,7 @@ services:
   cpx_120:
     image: store/citrix/netscalercpx:12.0-56.20
     ports:
-      - '80:80'
+      - '8080:80'
       - '443:443'
     environment:
       EULA: 'yes'

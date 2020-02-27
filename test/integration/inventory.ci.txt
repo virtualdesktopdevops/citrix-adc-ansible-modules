@@ -1,6 +1,6 @@
 [netscaler]
-netscaler_cpx_120 nsip=172.20.0.2:80 nitro_user=nsroot nitro_pass=nsroot
-citrix_adc_cpx_130 nsip=172.20.0.3:9080 nitro_user=nsroot nitro_pass=nsroot
+netscaler_cpx_120 nsip=localhost:8080 nitro_user=nsroot nitro_pass=nsroot
+citrix_adc_cpx_130 nsip=localhost:9080 nitro_user=nsroot nitro_pass=nsroot
 
 [mas]
 mas_120 nsip=10.78.60.204 nitro_user=nsroot nitro_pass=nsroot validate_certs=no instance_ip=10.78.60.202
