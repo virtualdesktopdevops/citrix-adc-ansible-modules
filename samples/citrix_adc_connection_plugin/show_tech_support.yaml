@@ -3,7 +3,7 @@
 #
 - hosts: citrix_adc
   remote_user: nsroot
-  connection: ssh_citrix_adc
+  connection: citrix.adc.ssh_citrix_adc
   gather_facts: False
   vars:
     ansible_python_interpreter: /var/python/bin/python
@@ -11,8 +11,9 @@
 
   tasks:
     - name: Generate technical support bundle
-      shell: nscli -s -U :nsroot:nsroot "show techsupport"
+      shell: "nscli -s -U :nsroot:{{nitro_pass}} show techsupport"
       register: sts_output
+      no_log: True
 
     - name: Parse output to find tarball path
       set_fact:
