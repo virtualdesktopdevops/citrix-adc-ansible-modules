@@ -2,23 +2,29 @@
 
 This repository provides [Ansible](https://www.ansible.com)  modules for configuring [Citrix ADC](https://www.citrix.com/products/netscaler-adc/) instances. It uses the [NITRO REST API](https://docs.citrix.com/en-us/netscaler/11/nitro-api.html). All form factors of Citrix ADC are supported.
 
-The code here should be considered alpha quality and may be broken at times due to experiments and refactoring. Tagged releases should be stable. The most stable version will be availble with Ansible automatically.
+To learn more about Automation of Citrix ADC, check out the blog [here](https://www.citrix.com/blogs/2020/10/06/terraform-and-ansible-automation-for-app-delivery-and-security/).
+
 
 ## Table of contents
 
 * [Module renaming](#module-renaming)
 * [Documentation](#documentation)
 * [List of implemented modules](#list-of-implemented-modules)
+  - [ADC modules](#adc-modules)
+  - [ADM modules](#adm-modules)
   - [`citrix_adc_nitro_resource` workflows list](#citrix_adc_nitro_resource-workflows-list)
 * [Pre-requisites](#pre-requisites)
 * [Installation](#installation)
-  - [Using `virtualenv` (recommended)](#using-virtualenv-recommended)
-  - [Global install](#global-install)
+  - [Setting up prerequisites](#setting-up-prerequisites)
+  - [Installing ADC and ADM modules and plugins](#installing-adc-and-adm-modules-and-plugins)
 * [Usage](#usage)
+  - [Secure variable storage](#secure-variable-storage)
+  - [NITRO API TLS](#nitro-api-tls)
   - [Citrix ADM proxied calls](#citrix-adm-proxied-calls)
 * [Citrix ADC connection plugin](#citrix-adc-connection-plugin)
   - [Installation](#installation)
   - [Usage](#usage-1)
+  - [Security notice](#security-notice)
   - [Citrix ADC and standard Ansible modules in a single playbook](#citrix-adc-and-standard-ansible-modules-in-a-single-playbook)
 * [What if there is no module for your configuration?](#what-if-there-is-no-module-for-your-configuration)
   - [Use the citrix\_adc\_nitro\_request module](#use-the-citrix_adc_nitro_request-module)
@@ -52,6 +58,10 @@ Extended documentation is hosted at [readthedocs](http://netscaler-ansible.readt
 
 Currently the following modules are implemented
 
+### ADC modules
+
+Included in the `citrix.adc` collection
+
 * citrix\_adc\_appfw\_confidfield - Configuration for configured confidential form fields resource
 * citrix\_adc\_appfw\_fieldtype - Configuration for application firewall form field type resource
 * citrix\_adc\_appfw\_global\_bindings - Define global bindings for AppFW
@@ -82,7 +92,13 @@ Currently the following modules are implemented
 * citrix\_adc\_server - Manage server configuration
 * citrix\_adc\_service - Manage service configuration in Citrix ADC
 * citrix\_adc\_servicegroup - Manage service group configuration in Citrix ADC
-* citrix\_adc\_ssl\_certkey - Manage ssl cerificate keys
+* citrix\_adc\_ssl\_certkey - Manage ssl certificate keys
+
+
+### ADM modules
+
+Included in the `citrix.adm` collection
+
 * citrix\_adm\_application - Manage applications on Citrix ADM
 * citrix\_adm\_dns\_domain\_entry - Manage Citrix ADM domain names
 * citrix\_adm\_login - Login to a Citrix ADM instance
@@ -95,7 +111,7 @@ Currently the following modules are implemented
 * citrix\_adm\_stylebook - Create or delete Citrix ADM stylebooks
 * citrix\_adm\_tenant\_facts - Retrieve facts about Citrix ADM tenants
 
-### `citrix_adc_nitro_resource` workflows list
+## `citrix_adc_nitro_resource` workflows list
 
 The following NITRO API endpoints have their workflow dictionaries available
 for use with the `citrix_adc_nitro_resource` module.
@@ -108,26 +124,49 @@ lbvserver\_spilloverpolicy\_binding, lbvserver\_pqpolicy\_binding, lbgroup\_lbvs
 ## Pre-requisites
 
 * NITRO Python SDK (available from https://www.citrix.com/downloads/netscaler-adc or from the "Downloads" tab of the Citrix ADC GUI)
-* Ansible       
+* Ansible
 * Python 2.7 or 3.x
 
 ## Installation
 
-### Using `virtualenv` (recommended)
+### Setting up prerequisites
+
+#### Using `virtualenv` (recommended)
 Use of a python virtualenv during installation is recommended.
 
 * Activate the virtualenv (`source bin/activate`)
 * Install all dependencies by running ```pip install -r requirements.test.txt``` from the project checkout.
-* Install the citrix ADC modules using ```python install.py```
 
-### Global install
+#### Global environment
 * Install Ansible (`sudo pip install ansible`)
 * Install NetScaler SDK (`pip install deps/nitro-python-1.0_kamet.tar.gz`)
-* Install Citrix ADC modules (`sudo python install.py`). It tries to find the ansible installation directory and then copies the module files to the appropriate places.
 
-If the ansible installation is on a dirctory that requires root access, the install script should be run with root privileges.
-If the isntallation script fails and you know where ansible is located on your system you can do a manual installation.
-Just copy the contents of the ansible-modules directory to the extras module directory and the netscaler.py file to the module_utils directory of ansible.
+### Installing ADC and ADM modules and plugins
+
+To install the available collections from the repository directly:
+
+```bash
+# ADC modules and connection plugin
+ansible-galaxy collection install git+https://github.com/citrix/citrix-adc-ansible-modules.git#/ansible-collections/adc
+
+# ADM modules
+ansible-galaxy collection install git+https://github.com/citrix/citrix-adc-ansible-modules.git#/ansible-collections/adm
+```
+
+To install the available collections from a local checkout of the repository:
+
+```bash
+# ADC modules and connection plugin
+cd ansible-collections/adc
+ansible-galaxy collection build 
+ansible-galaxy collection install citrix-adc-<semver>.tar.gz
+
+# ADM modules
+cd ansible-collections/adm
+ansible-galaxy collection build 
+ansible-galaxy collection install citrix-adm-<semver>.tar.gz
+```
+
 
 ## Usage
 
@@ -139,6 +178,42 @@ There are sample playbooks in the `samples` directory.
 Detailed documentation for each module can be found in the htmldoc directory.
 
 Documentation regarding the Citrix ADC appliance configuration in general can be found at the following link, http://docs.citrix.com/en-us/netscaler/11-1.html
+
+### Secure variable storage
+
+Some input variables used by the Citrix ADC ansible modules contain sensitive data.
+
+Most notably `nitro_pass`.
+
+Other variables may also be considered security sensitive
+depending on the use case. For example a user may not want to expose backend service
+IPs since it gives an attacker insight into the network topology used.
+
+In production environments it is recommended to keep the values of these variables encrypted until they are needed by the
+playbook. Ansible offers the [ansible-vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html) utility which
+can be used to encrypt individual variables or entire files.
+
+When the contents are needed the `ansible-playbook` command can take arguments which will point to the encrypted content
+and decrypt it as needed.
+
+For more information see the full [documentation](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
+
+### NITRO API TLS
+
+By default the `nitro_protocol` parameter is set to `http`.
+This leaves all NITRO API request and response data unencrypted and it is not recommended for production environments.
+
+Set the `nitro_protocol` to `https` in order to have all NITRO API communication encrypted.
+
+By default the Citrix ADC comes with a self signed TLS certificate.
+If you intend to use https with this certificate you need to set the `validate_certs` parameter to `false`.
+
+For production environments it is recommended to use trusted TLS certificate so that `validate_certs`
+is set to `true`.
+
+Please consult the [Citrix ADC secure deployment guide](https://docs.citrix.com/en-us/citrix-adc/citrix-adc-secure-deployment/secure-deployment-guide.html) where among other things the usage of trusted TLS certificates is documented.
+
+
 
 ### Citrix ADM proxied calls
 
@@ -157,9 +232,7 @@ The Citrix ADC connection plugin allows the use of standard Ansible modules, suc
 
 ### Installation
 
-The installation script provided here `install.py` will install the plugin to the ansible path inside the standard Ansible connection plugin directory.
-
-You can also manually copy the connection plugin source file located in `ansible-plugin/ssh\_citrix\_adc.py` to a custom location that Ansible will search for it. Refer to the Ansible documentation for details.
+The connection plugin is included in the citrix.adc collection.
 
 ### Usage
 
@@ -178,6 +251,28 @@ scp_if_ssh = True
 ```
 
 You can find usage samples in this [folder](samples/citrix_adc_connection_plugin).
+
+### Security notice
+
+With the connection plugin and the `shell` ansible module it is posssible to run nscli commands
+as show in the example below.
+
+```yaml
+tasks:
+  - name: Run nscli command
+    shell: "nscli -s -U :nsroot:{{nitro_pass}} show ns ip"
+    no_log: True
+```
+
+In order to not expose the actual nsroot password the following rules must be observed
+
+* Do not hardcode the password in the command string.
+
+  Use a variable which is retrieved from a secure storage.
+
+* For the task that contains the password set the task option `no_log: True`
+
+  This will hide log output from the specified task including the password.
 
 ### Citrix ADC and standard Ansible modules in a single playbook
 

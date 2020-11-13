@@ -1,6 +1,0 @@
----
-
-- { include: testbed.yaml }
-
-- { include: nitro.yaml, tags: ['nitro'] }
-

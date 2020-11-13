@@ -2,3 +2,5 @@
 *.pyc
 .tox/
 virtualenvironment/
+utils/
+test/
